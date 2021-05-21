@@ -1,12 +1,11 @@
 package entity
 
 import (
-	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
-//User data
+// User structure
 type User struct {
 	ID        ID
 	Email     string
@@ -14,6 +13,8 @@ type User struct {
 	Name      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	DeletedAt time.Time
+	Books []ID
 }
 
 // Create a new User
@@ -41,10 +42,45 @@ func NewUser(email string, password string, name string) (*User, error) {
 	return user, nil
 }
 
+// Add book to User
+func (user *User) AddBook(id ID) error {
+	_, err := user.GetBook(id)
+	if err == nil {
+		return ErrAlreadyExist
+	}
+
+	user.Books = append(user.Books, id)
+
+	return nil
+}
+
+// Remove book from User
+func (user *User) RemoveBook(id ID) error {
+	for i, val := range user.Books {
+		if val == id {
+			user.Books = append(user.Books[:i], user.Books[:i+1]...)
+			return nil
+		}
+	}
+
+	return ErrNotFound
+}
+
+// Get book from User
+func (user *User) GetBook(id ID) (ID, error) {
+	for _, val := range user.Books {
+		if val == id {
+			return id, nil
+		}
+	}
+
+	return id, ErrNotFound
+}
+
 // Validate input entity User
 func (user *User) ValidateInput() error {
 	if user.Email == "" || user.Password == "" || user.Name == "" {
-		return errors.New("'Name' or 'Email' or 'Password' is empty")
+		return ErrInvalidEntity
 	}
 
 	return nil
