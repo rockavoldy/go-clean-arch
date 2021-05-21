@@ -45,7 +45,7 @@ func (s *Service) SearchUsers(query string) ([]*entity.User, error) {
 func (s *Service) UpdateUser(e *entity.User) error {
 	err := e.ValidateInput()
 	if err != nil {
-		return entity.ErrInvalidEntity
+		return err
 	}
 
 	e.UpdatedAt = time.Now()
