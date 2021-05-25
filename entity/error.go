@@ -19,3 +19,9 @@ var ErrAlreadyExist = errors.New("already exists")
 
 // Has been deleted
 var ErrAlreadyDeleted = errors.New("already deleted")
+
+// Not enough Book
+var ErrNotEnoughBook = errors.New("not enough book")
+
+// Book not borrowed by *this* User
+var ErrBookNotBorrowed = errors.New("book not borrowed by this user")
