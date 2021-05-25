@@ -37,7 +37,7 @@ func (s *Service) Borrow(u *entity.User, b *entity.Book) error {
 
 	err = u.AddBook(b.ID)
 	if err != nil {
-		return err
+		return entity.ErrBookAlreadyBorrowed
 	}
 
 	err = s.userService.UpdateUser(u)

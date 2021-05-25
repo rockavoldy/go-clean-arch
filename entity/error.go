@@ -25,3 +25,6 @@ var ErrNotEnoughBook = errors.New("not enough book")
 
 // Book not borrowed by *this* User
 var ErrBookNotBorrowed = errors.New("book not borrowed by this user")
+
+// Book already borrowed by this User
+var ErrBookAlreadyBorrowed = errors.New("book already borrowed")
