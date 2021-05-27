@@ -1,0 +1,27 @@
+version: "3"
+services: 
+    mariadb:
+        container_name: go-clean-arch-mariadb
+        image: mariadb:10.5
+        command: --init-file /data/application/init.sql
+        volumes: 
+            - ./ops/db/:/data/application/
+        environment: 
+            MYSQL_ROOT_PASSWORD: toor_password
+            MYSQL_DATABASE: go_clean_arch
+            MYSQL_USER: fuu
+            MYSQL_PASSWORD: fuu_pass
+        ports: 
+            - "3306:3306"
+    pma:
+        container_name: go-clean-arch-pma
+        image: phpmyadmin:5.1
+        restart: always
+        environment:
+            PMA_HOST: mariadb
+            PMA_USER: fuu
+            PMA_PASSWORD: fuu_pass
+        ports:
+        -   "8080:80"
+        depends_on:
+            -   mariadb
