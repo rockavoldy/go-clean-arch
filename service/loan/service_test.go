@@ -4,9 +4,9 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"go-clean-arch/entity"
-	"testing"
-	umock "go-clean-arch/service/user/mock"
 	bmock "go-clean-arch/service/book/mock"
+	umock "go-clean-arch/service/user/mock"
+	"testing"
 )
 
 func TestService_Borrow(t *testing.T) {
@@ -82,7 +82,7 @@ func TestService_Borrow(t *testing.T) {
 			ID: entity.NewID(),
 		}
 		b := &entity.Book{
-			ID: entity.NewID(),
+			ID:       entity.NewID(),
 			Quantity: 10,
 		}
 

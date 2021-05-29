@@ -49,11 +49,11 @@ func main() {
 	userController.Route(r)
 
 	srv := &http.Server{
-		Addr: "0.0.0.0:8000",
+		Addr:         "0.0.0.0:8000",
 		WriteTimeout: time.Second * 15,
-		ReadTimeout: time.Second * 15,
-		IdleTimeout: time.Second * 60,
-		Handler: r,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 60,
+		Handler:      r,
 	}
 
 	go func() {
@@ -67,7 +67,7 @@ func main() {
 
 	<-c
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 15)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 
 	srv.Shutdown(ctx)

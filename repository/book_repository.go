@@ -31,7 +31,7 @@ func (r *BookMySQL) Create(e *entity.Book) (entity.ID, error) {
 		e.Pages,
 		e.Quantity,
 		time.Now().Format(entity.FormatDateTimeSQL),
-		)
+	)
 	if err != nil {
 		return e.ID, err
 	}
@@ -41,7 +41,7 @@ func (r *BookMySQL) Create(e *entity.Book) (entity.ID, error) {
 
 // Get Book
 func (r *BookMySQL) Get(id entity.ID) (*entity.Book, error) {
-	rows, err := r.db.Query(`SELECT id, title, author, isbn, pages, quantity, created_at FROM book WHERE id = ?`, id)
+	rows, err := r.db.Query(`SELECT id, title, author, isbn, pages, quantity, created_at FROM book WHERE id = ? AND deleted_at IS NULL`, id)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (r *BookMySQL) List() ([]*entity.Book, error) {
 
 // Search Book by Book.Title
 func (r *BookMySQL) Search(query string) ([]*entity.Book, error) {
-	rows, err := r.db.Query(`SELECT id, title, author, isbn, pages, quantity, created_at FROM book WHERE title LIKE ?`, query)
+	rows, err := r.db.Query(`SELECT id, title, author, isbn, pages, quantity, created_at FROM book WHERE title LIKE ? AND deleted_at IS NULL`, query)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (r *BookMySQL) Search(query string) ([]*entity.Book, error) {
 // Update Book
 func (r *BookMySQL) Update(e *entity.Book) error {
 	e.UpdatedAt = time.Now()
-	_, err := r.db.Exec(`UPDATE book SET title = ?, author = ?, isbn = ?, pages = ?, quantity = ?, updated_at = ? WHERE id = ?`,
+	_, err := r.db.Exec(`UPDATE book SET title = ?, author = ?, isbn = ?, pages = ?, quantity = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL`,
 		e.Title, e.Author, e.ISBN, e.Pages, e.Quantity, e.UpdatedAt.Format(entity.FormatDateTimeSQL), e.ID)
 	if err != nil {
 		return err
@@ -113,9 +113,25 @@ func (r *BookMySQL) Delete(id entity.ID) error {
 	return nil
 }
 
-// Restore a Boo
+// GetD deleted Book
+func (r *BookMySQL) GetDeletedBook(id entity.ID) (*entity.Book, error) {
+	rows, err := r.db.Query(`SELECT id, title, author, isbn, pages, quantity, created_at FROM book WHERE id = ? AND deleted_at IS NOT NULL`, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var book entity.Book
+	for rows.Next() {
+		err = rows.Scan(&book.ID, &book.Title, &book.Author, &book.ISBN, &book.Pages, &book.Quantity, &book.CreatedAt, &book.DeletedAt)
+	}
+
+	return &book, nil
+}
+
+// Restore a Book
 func (r *BookMySQL) Restore(id entity.ID) error {
-	_, err := r.db.Exec(`UPDATE book SET deleted_at = ? WHERE id = ?`, sql.NullTime{}, id)
+	_, err := r.db.Exec(`UPDATE book SET deleted_at = null WHERE id = ? AND deleted_at IS NOT NULL`, id)
 	if err != nil {
 		return err
 	}

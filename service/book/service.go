@@ -18,7 +18,7 @@ func NewService(r Repository) *Service {
 
 // create Book
 func (s *Service) CreateBook(title, author, isbn string, pages, qty int) (entity.ID, error) {
-	e , err := entity.NewBook(title, author, isbn, pages, qty)
+	e, err := entity.NewBook(title, author, isbn, pages, qty)
 	if err != nil {
 		return e.ID, err
 	}

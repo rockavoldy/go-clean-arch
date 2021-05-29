@@ -9,12 +9,12 @@ import (
 
 func newTestBook() *entity.Book {
 	return &entity.Book{
-		ID: entity.NewID(),
-		Title: "Ludonarasi",
-		Author: "Rimawarna",
-		ISBN: "123444",
-		Pages: 170,
-		Quantity: 3,
+		ID:        entity.NewID(),
+		Title:     "Ludonarasi",
+		Author:    "Rimawarna",
+		ISBN:      "123444",
+		Pages:     170,
+		Quantity:  3,
 		CreatedAt: time.Now(),
 	}
 }

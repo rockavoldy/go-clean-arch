@@ -5,6 +5,7 @@ import "go-clean-arch/entity"
 // Reader interface
 type Reader interface {
 	Get(id entity.ID) (*entity.User, error)
+	GetDeletedUser(id entity.ID) (*entity.User, error)
 	List() ([]*entity.User, error)
 	Search(query string) ([]*entity.User, error)
 }
@@ -24,7 +25,6 @@ type Repository interface {
 
 type UseCase interface {
 	GetUser(id entity.ID) (*entity.User, error)
-	GetDeletedUser(id entity.ID) (*entity.User, error)
 	ListUsers() ([]*entity.User, error)
 	SearchUsers(query string) ([]*entity.User, error)
 	CreateUser(email, password, name string) (entity.ID, error)

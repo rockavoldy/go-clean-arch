@@ -26,7 +26,7 @@ func (c *UserController) Route(r *mux.Router) {
 	r.HandleFunc("/user/{id}", c.getUser).Methods("GET", "OPTIONS").Name("getUser")
 	r.HandleFunc("/user/{id}", c.deleteUser).Methods("DELETE", "OPTIONS").Name("deleteUser")
 	r.HandleFunc("/user/{id}", c.restoreUser).Methods("PATCH", "OPTIONS").Name("restoreUser")
-	
+
 }
 
 func webResponse(writer http.ResponseWriter, code int, status string, data interface{}) {
@@ -34,9 +34,9 @@ func webResponse(writer http.ResponseWriter, code int, status string, data inter
 	writer.WriteHeader(code)
 
 	response, err := json.Marshal(model.WebResponse{
-		Code: code,
+		Code:   code,
 		Status: status,
-		Data: data,
+		Data:   data,
 	})
 
 	if err != nil {
@@ -99,9 +99,9 @@ func (c *UserController) createUser(writer http.ResponseWriter, request *http.Re
 	}
 
 	data := model.CreateUserResponse{
-		ID: id,
+		ID:    id,
 		Email: input.Email,
-		Name: input.Name,
+		Name:  input.Name,
 	}
 
 	webResponse(writer, http.StatusCreated, model.StatusCreated, data)
@@ -128,9 +128,9 @@ func (c *UserController) getUser(writer http.ResponseWriter, request *http.Reque
 	}
 
 	data := model.CreateUserResponse{
-		ID: dataUser.ID,
+		ID:    dataUser.ID,
 		Email: dataUser.Email,
-		Name: dataUser.Name,
+		Name:  dataUser.Name,
 	}
 
 	webResponse(writer, http.StatusOK, model.StatusOK, data)

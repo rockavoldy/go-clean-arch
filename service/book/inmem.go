@@ -30,7 +30,7 @@ func (r *inmem) Get(id entity.ID) (*entity.Book, error) {
 		return nil, entity.ErrNotFound
 	}
 
-	if r.m[id].DeletedAt.IsZero() == false {
+	if !r.m[id].DeletedAt.IsZero() {
 		return nil, entity.ErrNotFound
 	}
 
@@ -95,13 +95,26 @@ func (r *inmem) Delete(id entity.ID) error {
 	return nil
 }
 
+// Get deleted Book
+func (r *inmem) GetDeletedBook(id entity.ID) (*entity.Book, error) {
+	if r.m[id] == nil {
+		return nil, entity.ErrNotFound
+	}
+
+	if r.m[id].DeletedAt.IsZero() {
+		return nil, entity.ErrCannotBeRestored
+	}
+
+	return r.m[id], nil
+}
+
 // Restore a Deleted Book
 func (r *inmem) Restore(id entity.ID) error {
 	if r.m[id] == nil {
 		return entity.ErrNotFound
 	}
 
-	if r.m[id].DeletedAt.IsZero() == true {
+	if r.m[id].DeletedAt.IsZero() {
 		return entity.ErrCannotBeRestored
 	}
 

@@ -14,16 +14,16 @@ type User struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt time.Time
-	Books []ID
+	Books     []ID
 }
 
 // Create a new User
 func NewUser(email string, password string, name string) (*User, error) {
 	user := &User{
-		ID: NewID(),
-		Email: email,
-		Password: password,
-		Name: name,
+		ID:        NewID(),
+		Email:     email,
+		Password:  password,
+		Name:      name,
 		CreatedAt: time.Now(),
 	}
 

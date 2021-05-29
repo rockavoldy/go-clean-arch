@@ -4,12 +4,12 @@ import "time"
 
 //
 type Book struct {
-	ID ID
-	Title string
-	Author string
-	ISBN string
-	Pages int
-	Quantity int
+	ID        ID
+	Title     string
+	Author    string
+	ISBN      string
+	Pages     int
+	Quantity  int
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt time.Time
@@ -18,12 +18,12 @@ type Book struct {
 // Add new Book
 func NewBook(title string, author string, isbn string, pages int, qty int) (*Book, error) {
 	book := &Book{
-		ID: NewID(),
-		Title: title,
-		Author: author,
-		ISBN: isbn,
-		Pages: pages,
-		Quantity: qty,
+		ID:        NewID(),
+		Title:     title,
+		Author:    author,
+		ISBN:      isbn,
+		Pages:     pages,
+		Quantity:  qty,
 		CreatedAt: time.Now(),
 	}
 

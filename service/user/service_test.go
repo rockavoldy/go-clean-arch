@@ -9,10 +9,10 @@ import (
 
 func newTestUser() *entity.User {
 	return &entity.User{
-		ID: entity.NewID(),
-		Email: "fuu@fuu.com",
-		Password: "new_pass",
-		Name: "Fuu",
+		ID:        entity.NewID(),
+		Email:     "fuu@fuu.com",
+		Password:  "new_pass",
+		Name:      "Fuu",
 		CreatedAt: time.Now(),
 	}
 }
@@ -37,7 +37,7 @@ func TestService_SearchAndFind(t *testing.T) {
 	u2 := newTestUser()
 	u2.Name = "Fii"
 
-	userId, _ := m.CreateUser(u1.Email, u1. Password, u1.Name)
+	userId, _ := m.CreateUser(u1.Email, u1.Password, u1.Name)
 	_, _ = m.CreateUser(u2.Email, u2.Password, u2.Name)
 
 	t.Run("Search", func(t *testing.T) {
