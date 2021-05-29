@@ -106,3 +106,44 @@ func (c *UserController) createUser(writer http.ResponseWriter, request *http.Re
 	webResponse(writer, http.StatusCreated, model.StatusCreated, data)
 	return
 }
+
+func (c *UserController) getUser(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	id, err := entity.StringToID(vars["id"])
+	if err != nil {
+		webResponse(writer, http.StatusInternalServerError, model.StatusInternalServerError, nil)
+		return
+	}
+
+	data, err := c.UserService.GetUser(id)
+	if err != nil && err != entity.ErrNotFound {
+		webResponse(writer, http.StatusInternalServerError, model.StatusInternalServerError, nil)
+		return
+	}
+
+	if data == nil {
+		webResponse(writer, http.StatusNotFound, model.StatusNotFound, nil)
+		return
+	}
+
+	webResponse(writer, http.StatusOK, model.StatusOK, data)
+	return
+}
+
+func (c *UserController) deleteUser(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	id, err := entity.StringToID(vars["id"])
+	if err != nil {
+		webResponse(writer, http.StatusInternalServerError, model.StatusInternalServerError, nil)
+		return
+	}
+
+	err = c.UserService.DeleteUser(id)
+	if err != nil {
+		webResponse(writer, http.StatusInternalServerError, model.StatusInternalServerError, nil)
+		return
+	}
+
+	webResponse(writer, http.StatusOK, model.StatusDeleted, nil)
+	return
+}
