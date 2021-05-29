@@ -42,7 +42,7 @@ func (r *UserMySQL) Create(e *entity.User) (entity.ID, error) {
 
 // get user
 func (r *UserMySQL) Get(id entity.ID) (*entity.User, error) {
-	rows, err := r.db.Query(`SELECT id, email, name, created_at FROM user WHERE id = ?`, id)
+	rows, err := r.db.Query(`SELECT id, email, name, created_at FROM user WHERE id = ? AND deleted_at IS NULL`, id)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +51,9 @@ func (r *UserMySQL) Get(id entity.ID) (*entity.User, error) {
 	var user entity.User
 	for rows.Next() {
 		err = rows.Scan(&user.ID, &user.Email, &user.Name, &user.CreatedAt)
+	}
+	if user.Email == "" {
+		return nil, entity.ErrNotFound
 	}
 
 	rows, err = r.db.Query(`SELECT book_id FROM book_user WHERE user_id = ?`, id)
@@ -70,7 +73,7 @@ func (r *UserMySQL) Get(id entity.ID) (*entity.User, error) {
 
 // list user
 func (r *UserMySQL) List() ([]*entity.User, error) {
-	rows, err := r.db.Query(`SELECT id, email, name, created_at FROM user`)
+	rows, err := r.db.Query(`SELECT id, email, name, created_at FROM user WHERE deleted_at IS NULL`)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +108,7 @@ func (r *UserMySQL) List() ([]*entity.User, error) {
 
 // Search User by name
 func (r *UserMySQL) Search(query string) ([]*entity.User, error) {
-	stmt, err := r.db.Prepare(`SELECT id, email, name, created_at FROM user WHERE name LIKE ?`)
+	stmt, err := r.db.Prepare(`SELECT id, email, name, created_at FROM user WHERE name LIKE ? AND delete_at IS NULL`)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +149,7 @@ func (r *UserMySQL) Search(query string) ([]*entity.User, error) {
 // Update an User
 func (r *UserMySQL) Update(e *entity.User) error {
 	e.UpdatedAt = time.Now()
-	_, err := r.db.Exec(`UPDATE user SET email = ?, password = ?, name = ?, updated_at = ? WHERE id = ?`,
+	_, err := r.db.Exec(`UPDATE user SET email = ?, password = ?, name = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL`,
 		e.Email, e.Password, e.Name, e.UpdatedAt.Format(entity.FormatDateTimeSQL), e.ID)
 	if err != nil {
 		return err
@@ -169,7 +172,7 @@ func (r *UserMySQL) Update(e *entity.User) error {
 
 // Delete an User
 func (r *UserMySQL) Delete(id entity.ID) error {
-	_, err := r.db.Exec(`UPDATE user SET deleted_at = ? WHERE id = ?`, time.Now().Format(entity.FormatDateTimeSQL), id)
+	_, err := r.db.Exec(`UPDATE user SET deleted_at = ? WHERE id = ? AND deleted_at IS NULL`, time.Now().Format(entity.FormatDateTimeSQL), id)
 	if err != nil {
 		return err
 	}
@@ -177,9 +180,37 @@ func (r *UserMySQL) Delete(id entity.ID) error {
 	return nil
 }
 
+// Get deleted User
+func (r *UserMySQL) GetDeletedUser(id entity.ID) (*entity.User, error) {
+	rows, err := r.db.Query(`SELECT id, email, name, created_at FROM user WHERE id = ? AND deleted_at IS NOT NULL`, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var user entity.User
+	for rows.Next() {
+		err = rows.Scan(&user.ID, &user.Email, &user.Name, &user.CreatedAt, &user.DeletedAt)
+	}
+
+	rows, err = r.db.Query(`SELECT book_id FROM book_user WHERE user_id = ?`, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var i entity.ID
+		err = rows.Scan(&i)
+		user.Books = append(user.Books, i)
+	}
+
+	return &user, nil
+}
+
 // Restore an User
 func (r *UserMySQL) Restore(id entity.ID) error {
-	_, err := r.db.Exec(`UPDATE user SET deleted_at = ? WHERE id = ?`, sql.NullTime{}, id)
+	_, err := r.db.Exec(`UPDATE user SET deleted_at = null WHERE id = ? AND deleted_at IS NOT NULL`, id)
 	if err != nil {
 		return err
 	}

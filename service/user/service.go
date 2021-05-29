@@ -70,9 +70,14 @@ func (s *Service) DeleteUser(id entity.ID) error {
 	return s.repo.Delete(id)
 }
 
+// Get deleted User
+func (s *Service) GetDeletedUser(id entity.ID) (*entity.User, error) {
+	return s.repo.GetDeletedUser(id)
+}
+
 // Restore deleted User
 func (s *Service) RestoreUser(id entity.ID) error {
-	u, err := s.GetUser(id)
+	u, err := s.GetDeletedUser(id)
 	if u == nil {
 		return entity.ErrNotFound
 	}

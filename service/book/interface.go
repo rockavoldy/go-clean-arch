@@ -24,6 +24,7 @@ type Repository interface {
 
 type UseCase interface {
 	GetBook(id entity.ID) (*entity.Book, error)
+	GetDeletedBook(id entity.ID) (*entity.Book, error)
 	ListBooks() ([]*entity.Book, error)
 	SearchBooks(query string) ([]*entity.Book, error)
 	CreateBook(title, author, isbn string, pages, qty int) (entity.ID, error)

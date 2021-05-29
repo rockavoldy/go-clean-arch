@@ -25,6 +25,7 @@ func (c *UserController) Route(r *mux.Router) {
 	r.HandleFunc("/user", c.createUser).Methods("POST", "OPTIONS").Name("createUser")
 	r.HandleFunc("/user/{id}", c.getUser).Methods("GET", "OPTIONS").Name("getUser")
 	r.HandleFunc("/user/{id}", c.deleteUser).Methods("DELETE", "OPTIONS").Name("deleteUser")
+	r.HandleFunc("/user/{id}", c.restoreUser).Methods("PATCH", "OPTIONS").Name("restoreUser")
 	
 }
 
@@ -115,15 +116,21 @@ func (c *UserController) getUser(writer http.ResponseWriter, request *http.Reque
 		return
 	}
 
-	data, err := c.UserService.GetUser(id)
+	dataUser, err := c.UserService.GetUser(id)
 	if err != nil && err != entity.ErrNotFound {
 		webResponse(writer, http.StatusInternalServerError, model.StatusInternalServerError, nil)
 		return
 	}
 
-	if data == nil {
+	if dataUser == nil || err == entity.ErrNotFound {
 		webResponse(writer, http.StatusNotFound, model.StatusNotFound, nil)
 		return
+	}
+
+	data := model.CreateUserResponse{
+		ID: dataUser.ID,
+		Email: dataUser.Email,
+		Name: dataUser.Name,
 	}
 
 	webResponse(writer, http.StatusOK, model.StatusOK, data)
@@ -145,5 +152,31 @@ func (c *UserController) deleteUser(writer http.ResponseWriter, request *http.Re
 	}
 
 	webResponse(writer, http.StatusOK, model.StatusDeleted, nil)
+	return
+}
+
+func (c *UserController) restoreUser(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	id, err := entity.StringToID(vars["id"])
+	if err != nil {
+		webResponse(writer, http.StatusInternalServerError, model.StatusInternalServerError, nil)
+		return
+	}
+
+	err = c.UserService.RestoreUser(id)
+	if err != nil {
+		webResponse(writer, http.StatusInternalServerError, model.StatusInternalServerError, nil)
+		return
+	}
+
+	dataUser, _ := c.UserService.GetUser(id)
+
+	data := model.GetUserResponse{
+		ID:    dataUser.ID,
+		Email: dataUser.Email,
+		Name:  dataUser.Name,
+	}
+
+	webResponse(writer, http.StatusOK, model.StatusRestored, data)
 	return
 }
