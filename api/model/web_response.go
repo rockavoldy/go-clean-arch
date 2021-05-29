@@ -5,3 +5,8 @@ type WebResponse struct {
 	Status string      `json:"status"`
 	Data   interface{} `json:"data"`
 }
+
+const StatusInternalServerError = "Internal server error"
+const StatusOK = "OK"
+const StatusNotFound = "Status not found"
+const StatusCreated = "Created"

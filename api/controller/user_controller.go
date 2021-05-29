@@ -28,8 +28,23 @@ func (c *UserController) Route(r *mux.Router) {
 	
 }
 
-const errorGetUser = "Error reading users"
-const errorCreateUser = "Error adding user"
+func webResponse(writer http.ResponseWriter, code int, status string, data interface{}) {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(code)
+
+	response, err := json.Marshal(model.WebResponse{
+		Code: code,
+		Status: status,
+		Data: data,
+	})
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	writer.Write(response)
+	return
+}
 
 func (c *UserController) listUsers(writer http.ResponseWriter, request *http.Request) {
 	var data []*entity.User
@@ -41,16 +56,13 @@ func (c *UserController) listUsers(writer http.ResponseWriter, request *http.Req
 		data, err = c.UserService.SearchUsers(name)
 	}
 
-	writer.Header().Set("Content-Type", "application/json")
 	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		writer.Write([]byte(errorGetUser))
+		webResponse(writer, http.StatusInternalServerError, model.StatusInternalServerError, nil)
 		return
 	}
 
 	if data == nil {
-		writer.WriteHeader(http.StatusNotFound)
-		writer.Write([]byte(errorGetUser))
+		webResponse(writer, http.StatusNotFound, model.StatusNotFound, nil)
 		return
 	}
 
@@ -63,13 +75,8 @@ func (c *UserController) listUsers(writer http.ResponseWriter, request *http.Req
 		})
 	}
 
-	response := &model.WebResponse{Code: 200, Status: "OK", Data: dataUsers}
-
-	err = json.NewEncoder(writer).Encode(response)
-	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		writer.Write([]byte(errorGetUser))
-	}
+	webResponse(writer, http.StatusOK, model.StatusOK, dataUsers)
+	return
 }
 
 func (c *UserController) createUser(writer http.ResponseWriter, request *http.Request) {
@@ -77,51 +84,25 @@ func (c *UserController) createUser(writer http.ResponseWriter, request *http.Re
 	err := json.NewDecoder(request.Body).Decode(&input)
 	if err != nil {
 		log.Println(err.Error())
-		writer.WriteHeader(http.StatusInternalServerError)
-		res, _ := json.Marshal(
-			model.WebResponse{
-				Code: http.StatusInternalServerError,
-				Status: errorCreateUser,
-				Data: nil,
-			})
-		writer.Write(res)
+
+		webResponse(writer, http.StatusInternalServerError, model.StatusInternalServerError, nil)
 		return
 	}
 
 	id, err := c.UserService.CreateUser(input.Email, input.Password, input.Name)
 	if err != nil {
 		log.Println(err)
-		writer.WriteHeader(http.StatusInternalServerError)
-		res, _ := json.Marshal(
-			model.WebResponse{
-				Code: http.StatusInternalServerError,
-				Status: errorCreateUser,
-				Data: nil,
-			})
-		writer.Write(res)
+
+		webResponse(writer, http.StatusInternalServerError, model.StatusInternalServerError, nil)
 		return
 	}
 
-	response, _ := json.Marshal(
-		model.WebResponse{
-			Code: http.StatusCreated,
-			Status: "Created",
-			Data: model.CreateUserResponse{
-				ID: id,
-				Email: input.Email,
-				Name: input.Name,
-			},
-		})
+	data := model.CreateUserResponse{
+		ID: id,
+		Email: input.Email,
+		Name: input.Name,
+	}
 
-	writer.WriteHeader(http.StatusCreated)
-	writer.Write(response)
-}
-
-func (c *UserController) getUser(writer http.ResponseWriter, request *http.Request) {
+	webResponse(writer, http.StatusCreated, model.StatusCreated, data)
 	return
 }
-
-func (*UserController) deleteUser(writer http.ResponseWriter, request *http.Request) {
-	return
-}
-
