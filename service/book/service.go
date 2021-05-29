@@ -66,9 +66,14 @@ func (s *Service) DeleteBook(id entity.ID) error {
 	return s.repo.Delete(id)
 }
 
+// Get deleted Book
+func (s *Service) GetDeletedBook(id entity.ID) (*entity.Book, error) {
+	return s.repo.GetDeletedBook(id)
+}
+
 // Restore deleted Book
 func (s *Service) RestoreBook(id entity.ID) error {
-	b, err := s.GetBook(id)
+	b, err := s.GetDeletedBook(id)
 	if b == nil {
 		return entity.ErrNotFound
 	}

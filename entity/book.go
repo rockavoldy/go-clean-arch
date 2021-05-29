@@ -32,7 +32,7 @@ func NewBook(title string, author string, isbn string, pages int, qty int) (*Boo
 		return nil, err
 	}
 
-	return book, err
+	return book, nil
 }
 
 // Validate input Book
